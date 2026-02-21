@@ -1,0 +1,28 @@
+{
+  "name": "url-short",
+  "version": "1.0.0",
+  "description": "Project about url shortener ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aryanghugare/URL-Shortener.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aryanghugare/URL-Shortener/issues"
+  },
+  "homepage": "https://github.com/aryanghugare/URL-Shortener#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "node": "^25.6.1",
+    "nodemon": "^3.1.14"
+  }
+}
