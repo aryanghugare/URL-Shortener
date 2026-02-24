@@ -1,35 +1,29 @@
 import { db } from "../db/index.js";
 import { usersTable } from "../models/user.model.js";
-import bcrypt from "bcrypt";
-import {randomBytes,createHmac} from "crypto"
+import { signupPostRequestBodySchema } from "../validation/request.validation.js";
+import {hashPasswordWithSalt} from "../utils/hash.js";
 
 
 
 export const signup = async (req, res) => {
 try {
-const {firstname, lastname, email, password} = req.body;
+    const validationResult = await signupPostRequestBodySchema.safeParseAsync(req.body);
 
-// Validate input
-if (!firstname || !email || !password) {
-    return res.status(400).json({ error: "First name, email, and password are required" });
+if(validationResult.error){
+    return res.status(400).json({ error: validationResult.error.message });
 }
 
-// Check if the user with the same email already exists
+const { firstname, lastname, email, password } = validationResult.data;
+
 const existingUser = await db.select().from(usersTable).where(usersTable.email.eq(email)).first();
 
-if (existingUser) {
-    return res.status(409).json({ error: "Email already in use" });
+if(existingUser){
+    return res.status(400).json({ error: "Email already exists" });
 }
 
-// Hash the password with the salt and store the salt in the database
-// using crypto module to generate a random salt and hash the password with it
-// we can also use bcrypt to hash the password, but here we will use crypto for demonstration
-const salt = randomBytes(16).toString("hex");
-const hashedPassword = createHmac("sha256", salt).update(password).digest("hex");
+const { salt, password: hashedPassword } = hashPasswordWithSalt(password);
 
-
-// insert the new user into the database
-const user = await db.insert(usersTable).values({
+ const user = await db.insert(usersTable).values({
     firstname,
     lastname,
     email,
@@ -37,7 +31,7 @@ const user = await db.insert(usersTable).values({
     salt
 }).execute();
 
-return res.status(201).json({ message: "User created successfully", data : {userId : user.id} });
+res.status(201).json({ message: "User created successfully", userId: user.insertId });
 
 } catch (error) {
     console.error("Error during signup:", error);
