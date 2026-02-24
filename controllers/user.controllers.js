@@ -2,6 +2,8 @@ import { db } from "../db/index.js";
 import { usersTable } from "../models/user.model.js";
 import { signupPostRequestBodySchema } from "../validation/request.validation.js";
 import {hashPasswordWithSalt} from "../utils/hash.js";
+import { eq } from "drizzle-orm";
+import { getUserByEmail } from "../services/user.service.js";
 
 
 
@@ -15,8 +17,7 @@ if(validationResult.error){
 
 const { firstname, lastname, email, password } = validationResult.data;
 
-const existingUser = await db.select().from(usersTable).where(usersTable.email.eq(email)).first();
-
+const existingUser = await getUserByEmail(email);
 if(existingUser){
     return res.status(400).json({ error: "Email already exists" });
 }
@@ -31,7 +32,8 @@ const { salt, password: hashedPassword } = hashPasswordWithSalt(password);
     salt
 }).execute();
 
-res.status(201).json({ message: "User created successfully", userId: user.insertId });
+console.log("User creation result:", user);
+res.status(201).json({ message: "User created successfully", user });
 
 } catch (error) {
     console.error("Error during signup:", error);
