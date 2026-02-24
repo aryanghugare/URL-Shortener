@@ -16,9 +16,13 @@ app.use(cors({
 
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
- 
+// Import routes
+import userRouter from './routes/user.routes.js';
 
-app.listen(PORT, () => { 
+app.use('/api/users', userRouter);
+
+app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
